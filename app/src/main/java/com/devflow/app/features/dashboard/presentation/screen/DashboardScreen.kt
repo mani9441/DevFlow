@@ -14,9 +14,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +40,13 @@ fun DashboardScreen(
     onNavigateToTodos: () -> Unit,
     onNavigateToNotes: () -> Unit,
     onNavigateToMeetings: () -> Unit,
-    onNavigateToDeadlines: () -> Unit
+    onNavigateToDeadlines: () -> Unit,
+    onNavigateToSprints: () -> Unit,
+    onNavigateToTasks: () -> Unit,
+    onNavigateToStories: () -> Unit,
+    onNavigateToCommunication: () -> Unit,
+    onNavigateToIssues: () -> Unit,
+    onNavigateToMonitoring: () -> Unit
 ) {
     val modules = listOf(
         DashboardModuleItem(
@@ -61,6 +72,42 @@ fun DashboardScreen(
             description = "Track critical project milestones and dates.",
             icon = Icons.Default.Warning,
             onClick = onNavigateToDeadlines
+        ),
+        DashboardModuleItem(
+            title = "Sprints",
+            description = "Manage agile sprints, iteration goals, and schedules.",
+            icon = Icons.Default.Refresh,
+            onClick = onNavigateToSprints
+        ),
+        DashboardModuleItem(
+            title = "Development Tasks",
+            description = "Track software implementation tasks and status.",
+            icon = Icons.Default.List,
+            onClick = onNavigateToTasks
+        ),
+        DashboardModuleItem(
+            title = "User Stories",
+            description = "Write and organize user requirements and stories.",
+            icon = Icons.Default.Star,
+            onClick = onNavigateToStories
+        ),
+        DashboardModuleItem(
+            title = "Team Communication",
+            description = "Simulate and track messaging thread with development team members.",
+            icon = Icons.Default.AccountCircle,
+            onClick = onNavigateToCommunication
+        ),
+        DashboardModuleItem(
+            title = "Issue Tracking",
+            description = "Log and manage project bugs, enhancements, and defects.",
+            icon = Icons.Default.Info,
+            onClick = onNavigateToIssues
+        ),
+        DashboardModuleItem(
+            title = "Development Monitoring",
+            description = "Monitor remote GitHub Actions workflows and build execution health.",
+            icon = Icons.Default.Build,
+            onClick = onNavigateToMonitoring
         )
     )
 
