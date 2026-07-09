@@ -88,6 +88,18 @@ fun NavigationGraph(
                 },
                 onNavigateToMonitoring = {
                     navController.navigate(MonitoringDestination.DASHBOARD)
+                },
+                onAddTodoClick = {
+                    navController.navigate(TodoDestination.ADD)
+                },
+                onAddNoteClick = {
+                    navController.navigate(NotesDestination.ADD)
+                },
+                onAddMeetingClick = {
+                    navController.navigate(MeetingsDestination.ADD)
+                },
+                onAddIssueClick = {
+                    navController.navigate(IssuesDestination.ADD)
                 }
             )
         }
