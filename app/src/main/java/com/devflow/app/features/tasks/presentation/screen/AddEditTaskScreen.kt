@@ -132,7 +132,6 @@ fun AddEditTaskScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Priority Selector dropdown
             Box {
                 OutlinedTextField(
                     value = priority.name,
@@ -167,7 +166,6 @@ fun AddEditTaskScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sprint Selector dropdown
             Box {
                 OutlinedTextField(
                     value = selectedSprintName,
@@ -228,7 +226,6 @@ fun AddEditTaskScreen(
                 }
             )
 
-            // Date Picker Dialog
             if (showDatePicker) {
                 val datePickerState = rememberDatePickerState(
                     initialSelectedDateMillis = try {

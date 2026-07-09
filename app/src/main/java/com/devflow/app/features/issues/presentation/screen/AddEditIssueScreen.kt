@@ -112,7 +112,6 @@ fun AddEditIssueScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Priority Selector dropdown
             Box {
                 OutlinedTextField(
                     value = priority.name,

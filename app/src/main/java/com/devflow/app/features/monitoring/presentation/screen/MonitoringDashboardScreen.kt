@@ -85,7 +85,6 @@ fun MonitoringDashboardScreen(
         val showForm = state.config == null || isEditing
 
         if (showForm) {
-            // Integration Form view
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -205,14 +204,12 @@ fun MonitoringDashboardScreen(
                 }
             }
         } else {
-            // Connected Workflow builds list view
             val config = state.config!!
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                // Connection Header Card
                 AppCard(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -266,7 +263,6 @@ fun MonitoringDashboardScreen(
                     }
                 }
 
-                // Error Message Section
                 state.errorMessage?.let { error ->
                     Text(
                         text = error,
@@ -276,7 +272,6 @@ fun MonitoringDashboardScreen(
                     )
                 }
 
-                // Builds List
                 when {
                     state.loadingBuilds && state.workflowRuns.isEmpty() -> {
                         LoadingView()
@@ -321,7 +316,6 @@ fun MonitoringDashboardScreen(
 
                                         Spacer(modifier = Modifier.width(16.dp))
 
-                                        // Conclusion Text/Badge styling
                                         val conclusionLabel: String
                                         val badgeBgColor: Color
                                         val badgeTextColor: Color

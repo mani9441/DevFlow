@@ -1,6 +1,5 @@
 package com.devflow.app.features.tasks.presentation.screen
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import com.devflow.app.core.designsystem.components.AppCard
 import com.devflow.app.core.designsystem.components.AppTopBar
 import com.devflow.app.core.designsystem.components.EmptyState
 import com.devflow.app.core.designsystem.components.LoadingView
-import com.devflow.app.features.tasks.domain.model.TaskPriority
 import com.devflow.app.features.tasks.domain.model.TaskStatus
 import com.devflow.app.features.tasks.presentation.viewmodel.TaskViewModel
 import java.time.format.DateTimeFormatter

@@ -47,7 +47,6 @@ fun AppTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start // Pulls everything tightly to the left
             ) {
-                // If onBackClick is not null, display a back arrow immediately before the logo/title
                 if (onBackClick != null) {
                     IconButton(onClick = onBackClick) {
                         Icon(

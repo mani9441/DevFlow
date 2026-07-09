@@ -3,7 +3,6 @@ package com.devflow.app.features.communication.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devflow.app.features.communication.domain.model.Message
-import com.devflow.app.features.communication.domain.model.TeamMember
 import com.devflow.app.features.communication.domain.repository.MessageRepository
 import com.devflow.app.features.communication.domain.repository.TeamMemberRepository
 import com.devflow.app.features.communication.presentation.state.CommunicationUiState

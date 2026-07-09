@@ -21,39 +21,24 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -62,16 +47,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.devflow.app.core.designsystem.components.AppButton
 import com.devflow.app.core.designsystem.components.AppCard
 import com.devflow.app.core.designsystem.components.AppTopBar
 import com.devflow.app.features.dashboard.presentation.viewmodel.DashboardViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -131,7 +113,6 @@ fun DashboardScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            // 1. Welcome & Summary Header (Premium Gradient)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(6.dp)
@@ -188,7 +169,6 @@ fun DashboardScreen(
                 }
             }
 
-            // 2. Quick Stats Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -196,30 +176,29 @@ fun DashboardScreen(
                 StatBadge(
                     label = "Meetings",
                     count = state.meetings.size,
-                    color = Color(0xFF0D9488), // Teal
+                    color = Color(0xFF0D9488),
                     modifier = Modifier.weight(1f)
                 )
                 StatBadge(
                     label = "Tasks",
                     count = state.todos.size,
-                    color = Color(0xFF2563EB), // Blue
+                    color = Color(0xFF2563EB),
                     modifier = Modifier.weight(1f)
                 )
                 StatBadge(
                     label = "Issues",
                     count = state.issues.size,
-                    color = Color(0xFFE11D48), // Crimson
+                    color = Color(0xFFE11D48),
                     modifier = Modifier.weight(1f)
                 )
                 StatBadge(
                     label = "Deadlines",
                     count = state.deadlines.size,
-                    color = Color(0xFFEA580C), // Orange
+                    color = Color(0xFFEA580C),
                     modifier = Modifier.weight(1f)
                 )
             }
 
-            // 3. Continuous Dynamic Metric Sections (Adaptive Grid Arrangement)
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -230,7 +209,6 @@ fun DashboardScreen(
                     .weight(1f)
                     .fillMaxWidth()
 
-                // Today's Meetings
                 DashboardCard(
                     title = "Today's Meetings",
                     onClick = onNavigateToMeetings,
@@ -248,7 +226,6 @@ fun DashboardScreen(
                     }
                 }
 
-                // Upcoming Deadlines
                 DashboardCard(
                     title = "Upcoming Deadlines",
                     onClick = onNavigateToDeadlines,
@@ -274,7 +251,6 @@ fun DashboardScreen(
                     }
                 }
 
-                // Personal Tasks
                 DashboardCard(
                     title = "Personal Tasks",
                     onClick = onNavigateToTodos,
@@ -308,7 +284,6 @@ fun DashboardScreen(
                     }
                 }
 
-                // Open Issues Tracking
                 DashboardCard(
                     title = "Open Issues",
                     onClick = onNavigateToIssues,
@@ -335,7 +310,6 @@ fun DashboardScreen(
                 }
             }
 
-            // 4. Pipeline Run Status
             DashboardCard(
                 title = "Latest Build Status",
                 onClick = onNavigateToMonitoring,
@@ -427,7 +401,6 @@ fun DashboardScreen(
                 }
             }
 
-            // 5. Action Command Bar
             AppCard(modifier = Modifier.fillMaxWidth()) {
                 Column {
                     Text(
@@ -493,7 +466,6 @@ fun DashboardCard(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) {
-            // Accent vertical stripe
             androidx.compose.foundation.layout.Box(
                 modifier = Modifier
                     .width(4.dp)

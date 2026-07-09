@@ -15,9 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -140,7 +137,6 @@ fun SprintDetailsScreen(
                         HorizontalDivider()
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Sprint Progress Card
                         progressState?.let { progress ->
                             AppCard(
                                 modifier = Modifier.fillMaxWidth()
@@ -177,7 +173,6 @@ fun SprintDetailsScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        // Tab for Tasks vs. Stories
                         TabRow(selectedTabIndex = selectedTab) {
                             Tab(
                                 selected = selectedTab == 0,
@@ -194,7 +189,6 @@ fun SprintDetailsScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         if (selectedTab == 0) {
-                            // Tasks list
                             if (state.assignedTasks.isEmpty()) {
                                 Text(
                                     text = "No tasks assigned to this sprint yet.",
@@ -232,7 +226,6 @@ fun SprintDetailsScreen(
                                 }
                             }
                         } else {
-                            // Stories list
                             if (state.assignedStories.isEmpty()) {
                                 Text(
                                     text = "No user stories assigned to this sprint yet.",

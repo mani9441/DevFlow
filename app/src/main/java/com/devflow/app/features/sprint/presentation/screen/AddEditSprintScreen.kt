@@ -173,7 +173,6 @@ fun AddEditSprintScreen(
                 }
             )
 
-            // Start Date Picker Dialog
             if (showStartDatePicker) {
                 val datePickerState = rememberDatePickerState(
                     initialSelectedDateMillis = try {
@@ -209,7 +208,6 @@ fun AddEditSprintScreen(
                 }
             }
 
-            // End Date Picker Dialog
             if (showEndDatePicker) {
                 val datePickerState = rememberDatePickerState(
                     initialSelectedDateMillis = try {

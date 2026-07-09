@@ -90,7 +90,6 @@ fun IssueDetailsScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Status Selector Card
                         AppCard(
                             modifier = Modifier.fillMaxWidth()
                         ) {

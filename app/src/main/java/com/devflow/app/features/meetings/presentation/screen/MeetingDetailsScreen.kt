@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -84,7 +83,6 @@ fun MeetingDetailsScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Metadata
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
@@ -107,7 +105,6 @@ fun MeetingDetailsScreen(
                         HorizontalDivider()
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // 1. Yesterday's Work
                         Text(
                             text = "What did I do yesterday?",
                             style = MaterialTheme.typography.titleMedium,
@@ -122,7 +119,6 @@ fun MeetingDetailsScreen(
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        // 2. Today's Plan
                         Text(
                             text = "What will I do today?",
                             style = MaterialTheme.typography.titleMedium,
@@ -137,7 +133,6 @@ fun MeetingDetailsScreen(
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        // 3. Blockers
                         Text(
                             text = "Are there any blockers?",
                             style = MaterialTheme.typography.titleMedium,
