@@ -1,5 +1,6 @@
 package com.devflow.app.core.designsystem.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -13,7 +14,8 @@ import androidx.compose.runtime.Composable
 @Composable
 fun AppTopBar(
     title: String,
-    onBackClick: (() -> Unit)? = null
+    onBackClick: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -28,6 +30,7 @@ fun AppTopBar(
                     )
                 }
             }
-        }
+        },
+        actions = actions
     )
 }
