@@ -12,12 +12,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,6 +58,7 @@ fun AddEditTaskScreen(
     var priority by remember { mutableStateOf(TaskPriority.MEDIUM) }
     var dueDateStr by remember { mutableStateOf("") }
     var sprintId by remember { mutableStateOf<Long?>(null) }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     var titleError by remember { mutableStateOf<String?>(null) }
     var dateError by remember { mutableStateOf<String?>(null) }
@@ -208,8 +217,52 @@ fun AddEditTaskScreen(
                         dateError = null
                     }
                 },
-                label = "Due Date (YYYY-MM-DD, Optional)"
+                label = "Due Date (YYYY-MM-DD, Optional)",
+                trailingIcon = {
+                    IconButton(onClick = { showDatePicker = true }) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Select Due Date"
+                        )
+                    }
+                }
             )
+
+            // Date Picker Dialog
+            if (showDatePicker) {
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = try {
+                        val localDate = LocalDate.parse(dueDateStr.trim())
+                        val zoneId = java.time.ZoneId.systemDefault()
+                        localDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
+                    } catch (e: Exception) {
+                        System.currentTimeMillis()
+                    }
+                )
+
+                DatePickerDialog(
+                    onDismissRequest = { showDatePicker = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val instant = java.time.Instant.ofEpochMilli(millis)
+                                val localDate = java.time.LocalDateTime.ofInstant(instant, java.time.ZoneId.of("UTC")).toLocalDate()
+                                dueDateStr = localDate.toString()
+                            }
+                            showDatePicker = false
+                        }) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDatePicker = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
+            }
             dateError?.let { error ->
                 Text(
                     text = error,

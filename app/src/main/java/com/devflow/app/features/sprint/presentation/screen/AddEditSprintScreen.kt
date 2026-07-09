@@ -10,9 +10,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,6 +51,9 @@ fun AddEditSprintScreen(
     var goal by remember { mutableStateOf("") }
     var startDateStr by remember { mutableStateOf(LocalDate.now().toString()) }
     var endDateStr by remember { mutableStateOf(LocalDate.now().plusDays(14).toString()) }
+
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var goalError by remember { mutableStateOf<String?>(null) }
@@ -130,7 +141,15 @@ fun AddEditSprintScreen(
                         dateError = null
                     }
                 },
-                label = "Start Date (YYYY-MM-DD)"
+                label = "Start Date (YYYY-MM-DD)",
+                trailingIcon = {
+                    IconButton(onClick = { showStartDatePicker = true }) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Select Start Date"
+                        )
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -143,8 +162,88 @@ fun AddEditSprintScreen(
                         dateError = null
                     }
                 },
-                label = "End Date (YYYY-MM-DD)"
+                label = "End Date (YYYY-MM-DD)",
+                trailingIcon = {
+                    IconButton(onClick = { showEndDatePicker = true }) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Select End Date"
+                        )
+                    }
+                }
             )
+
+            // Start Date Picker Dialog
+            if (showStartDatePicker) {
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = try {
+                        val localDate = LocalDate.parse(startDateStr.trim())
+                        val zoneId = java.time.ZoneId.systemDefault()
+                        localDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
+                    } catch (e: Exception) {
+                        System.currentTimeMillis()
+                    }
+                )
+
+                DatePickerDialog(
+                    onDismissRequest = { showStartDatePicker = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val instant = java.time.Instant.ofEpochMilli(millis)
+                                val localDate = java.time.LocalDateTime.ofInstant(instant, java.time.ZoneId.of("UTC")).toLocalDate()
+                                startDateStr = localDate.toString()
+                            }
+                            showStartDatePicker = false
+                        }) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showStartDatePicker = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
+            }
+
+            // End Date Picker Dialog
+            if (showEndDatePicker) {
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = try {
+                        val localDate = LocalDate.parse(endDateStr.trim())
+                        val zoneId = java.time.ZoneId.systemDefault()
+                        localDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
+                    } catch (e: Exception) {
+                        System.currentTimeMillis()
+                    }
+                )
+
+                DatePickerDialog(
+                    onDismissRequest = { showEndDatePicker = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val instant = java.time.Instant.ofEpochMilli(millis)
+                                val localDate = java.time.LocalDateTime.ofInstant(instant, java.time.ZoneId.of("UTC")).toLocalDate()
+                                endDateStr = localDate.toString()
+                            }
+                            showEndDatePicker = false
+                        }) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showEndDatePicker = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
+            }
             dateError?.let { error ->
                 Text(
                     text = error,
