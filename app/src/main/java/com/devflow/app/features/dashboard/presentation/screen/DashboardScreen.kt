@@ -1,5 +1,7 @@
 package com.devflow.app.features.dashboard.presentation.screen
 
+import com.devflow.app.R
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,36 +12,57 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devflow.app.core.designsystem.components.AppButton
 import com.devflow.app.core.designsystem.components.AppCard
@@ -48,6 +71,8 @@ import com.devflow.app.features.dashboard.presentation.viewmodel.DashboardViewMo
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -78,17 +103,18 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Dashboard",
+                title = "DevFlow",
+                logoRes = R.drawable.logo,
                 actions = {
-                    Box(
-                        modifier = Modifier
-                            .clickable { viewModel.refreshDashboard() }
-                            .padding(8.dp)
+                    IconButton(
+                        onClick = { viewModel.refreshDashboard() },
+                        modifier = Modifier.padding(end = 4.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Refresh Dashboard",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
@@ -105,30 +131,95 @@ fun DashboardScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            // 1. Unified Welcome & Summary Header
+            // 1. Welcome & Summary Header (Premium Gradient)
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                elevation = CardDefaults.cardElevation(6.dp)
             ) {
-                Column(modifier = Modifier.padding(24.dp)) {
-                    Text(
-                        text = "Good morning, Marcus",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = dateString,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                    )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary
+                                )
+                            )
+                        )
+                        .padding(24.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Good morning, Marcus",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = dateString,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Welcome back to your workspace. All systems are operational.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    androidx.compose.foundation.layout.Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.25f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "MC",
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                 }
             }
 
-            // 2. Continuous Dynamic Metric Sections (Adaptive Grid Arrangement)
+            // 2. Quick Stats Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                StatBadge(
+                    label = "Meetings",
+                    count = state.meetings.size,
+                    color = Color(0xFF0D9488), // Teal
+                    modifier = Modifier.weight(1f)
+                )
+                StatBadge(
+                    label = "Tasks",
+                    count = state.todos.size,
+                    color = Color(0xFF2563EB), // Blue
+                    modifier = Modifier.weight(1f)
+                )
+                StatBadge(
+                    label = "Issues",
+                    count = state.issues.size,
+                    color = Color(0xFFE11D48), // Crimson
+                    modifier = Modifier.weight(1f)
+                )
+                StatBadge(
+                    label = "Deadlines",
+                    count = state.deadlines.size,
+                    color = Color(0xFFEA580C), // Orange
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // 3. Continuous Dynamic Metric Sections (Adaptive Grid Arrangement)
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -143,6 +234,7 @@ fun DashboardScreen(
                 DashboardCard(
                     title = "Today's Meetings",
                     onClick = onNavigateToMeetings,
+                    accentColor = Color(0xFF0D9488),
                     modifier = itemModifier
                 ) {
                     if (state.meetings.isEmpty()) {
@@ -160,6 +252,7 @@ fun DashboardScreen(
                 DashboardCard(
                     title = "Upcoming Deadlines",
                     onClick = onNavigateToDeadlines,
+                    accentColor = Color(0xFFEA580C),
                     modifier = itemModifier
                 ) {
                     if (state.deadlines.isEmpty()) {
@@ -185,6 +278,7 @@ fun DashboardScreen(
                 DashboardCard(
                     title = "Personal Tasks",
                     onClick = onNavigateToTodos,
+                    accentColor = Color(0xFF2563EB),
                     modifier = itemModifier
                 ) {
                     if (state.todos.isEmpty()) {
@@ -199,7 +293,7 @@ fun DashboardScreen(
                                     Text(
                                         text = "•",
                                         style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = Color(0xFF2563EB),
                                         modifier = Modifier.padding(end = 8.dp)
                                     )
                                     Text(
@@ -218,6 +312,7 @@ fun DashboardScreen(
                 DashboardCard(
                     title = "Open Issues",
                     onClick = onNavigateToIssues,
+                    accentColor = Color(0xFFE11D48),
                     modifier = itemModifier
                 ) {
                     if (state.issues.isEmpty()) {
@@ -240,10 +335,11 @@ fun DashboardScreen(
                 }
             }
 
-            // 3. Pipeline Run Status
+            // 4. Pipeline Run Status
             DashboardCard(
                 title = "Latest Build Status",
-                onClick = onNavigateToMonitoring
+                onClick = onNavigateToMonitoring,
+                accentColor = Color(0xFF64748B)
             ) {
                 when {
                     state.repoConfig == null -> {
@@ -262,35 +358,78 @@ fun DashboardScreen(
                                 Text(
                                     text = state.latestRun.workflowName,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Run #${state.latestRun.runNumber} • Branch: ${state.latestRun.branch}",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.outline
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                             Spacer(modifier = Modifier.width(16.dp))
-                            val (iconVector, tintColor, desc) = when (state.latestRun.conclusion) {
-                                "success" -> Triple(Icons.Default.CheckCircle, androidx.compose.ui.graphics.Color(0xFF2E7D32), "Success")
-                                "failure", "cancelled" -> Triple(Icons.Default.Close, MaterialTheme.colorScheme.error, "Failed")
-                                else -> Triple(Icons.Default.Info, MaterialTheme.colorScheme.primary, "In Progress")
+                            
+                            val conclusionLabel: String
+                            val badgeBgColor: Color
+                            val badgeTextColor: Color
+                            val iconVector: ImageVector
+                            when (state.latestRun.conclusion) {
+                                "success" -> {
+                                    conclusionLabel = "Passed"
+                                    badgeBgColor = Color(0xFFDCFCE7)
+                                    badgeTextColor = Color(0xFF15803D)
+                                    iconVector = Icons.Default.CheckCircle
+                                }
+                                "failure", "cancelled" -> {
+                                    conclusionLabel = "Failed"
+                                    badgeBgColor = Color(0xFFFEE2E2)
+                                    badgeTextColor = Color(0xFFB91C1C)
+                                    iconVector = Icons.Default.Close
+                                }
+                                else -> {
+                                    conclusionLabel = "Building"
+                                    badgeBgColor = Color(0xFFDBEAFE)
+                                    badgeTextColor = Color(0xFF1D4ED8)
+                                    iconVector = Icons.Default.Info
+                                }
                             }
-                            Icon(
-                                imageVector = iconVector,
-                                contentDescription = desc,
-                                tint = tintColor,
-                                modifier = Modifier.size(24.dp)
-                            )
+                            
+                            Card(
+                                colors = CardDefaults.cardColors(containerColor = badgeBgColor),
+                                shape = RoundedCornerShape(8.dp),
+                                elevation = CardDefaults.cardElevation(0.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = iconVector,
+                                        contentDescription = conclusionLabel,
+                                        tint = badgeTextColor,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Text(
+                                        text = conclusionLabel,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = badgeTextColor
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            // 4. Action Command Bar
+            // 5. Action Command Bar
             AppCard(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column {
                     Text(
                         text = "Quick Actions",
                         style = MaterialTheme.typography.titleSmall,
@@ -298,62 +437,39 @@ fun DashboardScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    FlowRow(
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        AppButton(text = "New Todo", onClick = onAddTodoClick)
-                        AppButton(text = "New Note", onClick = onAddNoteClick)
-                        AppButton(text = "Schedule Meeting", onClick = onAddMeetingClick)
-                        AppButton(text = "Log Issue", onClick = onAddIssueClick)
+                        QuickActionTile(
+                            text = "New Todo",
+                            icon = Icons.Default.CheckCircle,
+                            color = Color(0xFF2563EB),
+                            onClick = onAddTodoClick,
+                            modifier = Modifier.weight(1f)
+                        )
+                        QuickActionTile(
+                            text = "New Note",
+                            icon = Icons.Default.Edit,
+                            color = Color(0xFF0D9488),
+                            onClick = onAddNoteClick,
+                            modifier = Modifier.weight(1f)
+                        )
+                        QuickActionTile(
+                            text = "Meeting",
+                            icon = Icons.Default.DateRange,
+                            color = Color(0xFFF59E0B),
+                            onClick = onAddMeetingClick,
+                            modifier = Modifier.weight(1f)
+                        )
+                        QuickActionTile(
+                            text = "Log Issue",
+                            icon = Icons.Default.Warning,
+                            color = Color(0xFFDC2626),
+                            onClick = onAddIssueClick,
+                            modifier = Modifier.weight(1f)
+                        )
                     }
-                }
-            }
-
-            // 5. System Workspaces Functional Navigation
-            AppCard(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Workspace Navigation",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    WorkspaceItem(
-                        title = "Agile Sprints",
-                        description = "Manage agile sprints and planning iterations.",
-                        icon = Icons.Default.Refresh,
-                        onClick = onNavigateToSprints
-                    )
-                    WorkspaceItem(
-                        title = "Development Tasks",
-                        description = "Track software implementation tasks and boards.",
-                        icon = Icons.Default.List,
-                        onClick = onNavigateToTasks
-                    )
-                    WorkspaceItem(
-                        title = "User Stories",
-                        description = "Write user requirements and user scenarios.",
-                        icon = Icons.Default.Star,
-                        onClick = onNavigateToStories
-                    )
-                    WorkspaceItem(
-                        title = "Project Notes",
-                        description = "Keep track of notes, outcomes, and logs.",
-                        icon = Icons.Default.Edit,
-                        onClick = onNavigateToNotes
-                    )
-                    WorkspaceItem(
-                        title = "Team Chat",
-                        description = "Chat with team members in local threads.",
-                        icon = Icons.Default.AccountCircle,
-                        onClick = onNavigateToCommunication
-                    )
                 }
             }
 
@@ -367,22 +483,126 @@ fun DashboardCard(
     title: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    accentColor: Color = MaterialTheme.colorScheme.primary,
     content: @Composable () -> Unit
 ) {
     AppCard(
         modifier = modifier.clickable { onClick() }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            // Accent vertical stripe
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .height(48.dp)
+                    .background(accentColor, shape = RoundedCornerShape(2.dp))
             )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = accentColor
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                Spacer(modifier = Modifier.height(12.dp))
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatBadge(
+    label: String,
+    count: Int,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = color.copy(alpha = 0.08f)
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuickActionTile(
+    text: String,
+    icon: ImageVector,
+    color: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .clickable { onClick() }
+            .heightIn(min = 80.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = color.copy(alpha = 0.06f)
+        ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.15f)),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(color.copy(alpha = 0.12f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = text,
+                    tint = color,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-            Spacer(modifier = Modifier.height(12.dp))
-            content()
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -466,56 +686,4 @@ private fun EmptyStateText(text: String) {
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     )
-}
-
-@Composable
-fun WorkspaceItem(
-    title: String,
-    description: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 12.dp),
-        // Changed to Alignment.Top so elements align from the first line down
-        verticalAlignment = Alignment.Top 
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .size(20.dp)
-                // Small top offset aligns the icon perfectly with the baseline of the title text
-                .padding(top = 2.dp) 
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-        }
-    }
-}
-
-@Composable
-fun Box(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    androidx.compose.foundation.layout.Box(modifier = modifier) {
-        content()
-    }
 }
