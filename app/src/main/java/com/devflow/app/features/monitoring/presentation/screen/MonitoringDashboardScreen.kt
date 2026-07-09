@@ -28,6 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -318,34 +321,69 @@ fun MonitoringDashboardScreen(
 
                                         Spacer(modifier = Modifier.width(16.dp))
 
-                                        // Conclusion Icon styling
+                                        // Conclusion Text/Badge styling
+                                        val conclusionLabel: String
+                                        val badgeBgColor: Color
+                                        val badgeTextColor: Color
+                                        val iconVector: ImageVector
                                         when (build.conclusion) {
-                                            "success" -> Icon(
-                                                imageVector = Icons.Default.CheckCircle,
-                                                contentDescription = "Success",
-                                                tint = androidx.compose.ui.graphics.Color(0xFF2E7D32),
-                                                modifier = Modifier.size(32.dp)
-                                            )
-                                            "failure", "cancelled" -> Icon(
-                                                imageVector = Icons.Default.Close,
-                                                contentDescription = "Failure",
-                                                tint = MaterialTheme.colorScheme.error,
-                                                modifier = Modifier.size(32.dp)
-                                            )
+                                            "success" -> {
+                                                conclusionLabel = "Passed"
+                                                badgeBgColor = Color(0xFFDCFCE7)
+                                                badgeTextColor = Color(0xFF15803D)
+                                                iconVector = Icons.Default.CheckCircle
+                                            }
+                                            "failure", "cancelled" -> {
+                                                conclusionLabel = "Failed"
+                                                badgeBgColor = Color(0xFFFEE2E2)
+                                                badgeTextColor = Color(0xFFB91C1C)
+                                                iconVector = Icons.Default.Close
+                                            }
                                             else -> {
                                                 if (build.status == "in_progress") {
+                                                    conclusionLabel = "Building"
+                                                    badgeBgColor = Color(0xFFDBEAFE)
+                                                    badgeTextColor = Color(0xFF1D4ED8)
+                                                    iconVector = Icons.Default.Info
+                                                } else {
+                                                    conclusionLabel = "Pending"
+                                                    badgeBgColor = Color(0xFFF1F5F9)
+                                                    badgeTextColor = Color(0xFF475569)
+                                                    iconVector = Icons.Default.Info
+                                                }
+                                            }
+                                        }
+
+                                        androidx.compose.material3.Card(
+                                            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = badgeBgColor),
+                                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                                            elevation = androidx.compose.material3.CardDefaults.cardElevation(0.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                            ) {
+                                                if (build.status == "in_progress") {
                                                     CircularProgressIndicator(
-                                                        modifier = Modifier.size(24.dp),
-                                                        strokeWidth = 2.dp
+                                                        modifier = Modifier.size(12.dp),
+                                                        strokeWidth = 1.5.dp,
+                                                        color = badgeTextColor
                                                     )
                                                 } else {
                                                     Icon(
-                                                        imageVector = Icons.Default.Info,
-                                                        contentDescription = "Pending/Queued",
-                                                        tint = MaterialTheme.colorScheme.primary,
-                                                        modifier = Modifier.size(32.dp)
+                                                        imageVector = iconVector,
+                                                        contentDescription = conclusionLabel,
+                                                        tint = badgeTextColor,
+                                                        modifier = Modifier.size(14.dp)
                                                     )
                                                 }
+                                                Text(
+                                                    text = conclusionLabel,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    fontWeight = FontWeight.ExtraBold,
+                                                    color = badgeTextColor
+                                                )
                                             }
                                         }
                                     }
