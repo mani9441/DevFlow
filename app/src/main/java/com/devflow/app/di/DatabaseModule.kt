@@ -16,6 +16,7 @@ import com.devflow.app.features.communication.data.local.dao.MessageDao
 import com.devflow.app.features.communication.data.local.dao.TeamMemberDao
 import com.devflow.app.features.issues.data.local.dao.IssueDao
 import com.devflow.app.features.monitoring.data.local.dao.RepositoryConfigDao
+import com.devflow.app.features.project.data.local.dao.ProjectDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,16 +40,14 @@ object DatabaseModule {
             "devflow.db"
         )
         .fallbackToDestructiveMigration()
-        .addCallback(object : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                db.execSQL("INSERT INTO team_members (id, name, role) VALUES (1, 'Marcus', 'Developer')")
-                db.execSQL("INSERT INTO team_members (id, name, role) VALUES (2, 'John', 'Backend Developer')")
-                db.execSQL("INSERT INTO team_members (id, name, role) VALUES (3, 'Emily', 'QA Engineer')")
-                db.execSQL("INSERT INTO team_members (id, name, role) VALUES (4, 'David', 'Project Manager')")
-            }
-        })
         .build()
+    }
+
+    @Provides
+    fun provideProjectDao(
+        database: DevFlowDatabase
+    ): ProjectDao {
+        return database.projectDao()
     }
 
     @Provides

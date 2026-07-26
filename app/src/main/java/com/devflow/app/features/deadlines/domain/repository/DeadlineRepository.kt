@@ -13,5 +13,7 @@ interface DeadlineRepository {
 
     suspend fun getDeadline(id: Long): Deadline?
 
-    fun getAllDeadlines(): Flow<List<Deadline>>
+    fun getAllDeadlines(projectId: Long): Flow<List<Deadline>>
+
+    fun getAllDeadlines(): Flow<List<Deadline>> = kotlinx.coroutines.flow.flowOf(emptyList())
 }

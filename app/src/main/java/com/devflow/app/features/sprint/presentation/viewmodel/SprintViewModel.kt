@@ -7,11 +7,13 @@ import com.devflow.app.features.sprint.domain.repository.SprintRepository
 import com.devflow.app.features.sprint.presentation.state.SprintUiState
 import com.devflow.app.features.tasks.domain.repository.TaskRepository
 import com.devflow.app.features.stories.domain.repository.UserStoryRepository
+import com.devflow.app.features.project.domain.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,7 +23,8 @@ import javax.inject.Inject
 class SprintViewModel @Inject constructor(
     private val repository: SprintRepository,
     private val taskRepository: TaskRepository,
-    private val storyRepository: UserStoryRepository
+    private val storyRepository: UserStoryRepository,
+    private val projectRepository: ProjectRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SprintUiState())
@@ -35,13 +38,25 @@ class SprintViewModel @Inject constructor(
         _uiState.update { it.copy(loadingState = true) }
         viewModelScope.launch {
             try {
-                repository.getAllSprints().collect { sprints ->
-                    _uiState.update {
-                        it.copy(
-                            sprintList = sprints,
-                            loadingState = false,
-                            errorMessage = null
-                        )
+                projectRepository.getActiveProject().collect { project ->
+                    if (project != null) {
+                        repository.getAllSprints(project.id).collect { sprints ->
+                            _uiState.update {
+                                it.copy(
+                                    sprintList = sprints,
+                                    loadingState = false,
+                                    errorMessage = null
+                                )
+                            }
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                sprintList = emptyList(),
+                                loadingState = false,
+                                errorMessage = "No active project selected"
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -91,16 +106,22 @@ class SprintViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val newSprint = Sprint(
-                    name = name.trim(),
-                    goal = goal.trim(),
-                    startDate = startDate,
-                    endDate = endDate,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now()
-                )
-                repository.createSprint(newSprint)
-                onSuccess()
+                val project = projectRepository.getActiveProject().first()
+                if (project != null) {
+                    val newSprint = Sprint(
+                        projectId = project.id,
+                        name = name.trim(),
+                        goal = goal.trim(),
+                        startDate = startDate,
+                        endDate = endDate,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now()
+                    )
+                    repository.createSprint(newSprint)
+                    onSuccess()
+                } else {
+                    _uiState.update { it.copy(errorMessage = "No active project selected") }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = e.message ?: "Failed to add sprint") }
             }

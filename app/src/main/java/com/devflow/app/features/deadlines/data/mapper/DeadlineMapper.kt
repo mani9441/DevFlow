@@ -6,6 +6,7 @@ import com.devflow.app.features.deadlines.domain.model.Deadline
 fun DeadlineEntity.toDomain(): Deadline {
     return Deadline(
         id = id,
+        projectId = projectId,
         title = title,
         description = description,
         dueDate = dueDate,
@@ -18,6 +19,7 @@ fun DeadlineEntity.toDomain(): Deadline {
 fun Deadline.toEntity(): DeadlineEntity {
     return DeadlineEntity(
         id = id,
+        projectId = projectId,
         title = title,
         description = description,
         dueDate = dueDate,

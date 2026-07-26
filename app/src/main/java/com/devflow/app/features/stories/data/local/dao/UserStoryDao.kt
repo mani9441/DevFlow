@@ -24,12 +24,12 @@ interface UserStoryDao {
     @Query("SELECT * FROM user_stories WHERE id = :id")
     suspend fun getById(id: Long): UserStoryEntity?
 
-    @Query("SELECT * FROM user_stories ORDER BY createdAt DESC")
-    fun getAll(): Flow<List<UserStoryEntity>>
+    @Query("SELECT * FROM user_stories WHERE projectId = :projectId ORDER BY createdAt DESC")
+    fun getAll(projectId: Long): Flow<List<UserStoryEntity>>
 
     @Query("SELECT * FROM user_stories WHERE sprintId = :sprintId ORDER BY createdAt DESC")
     fun getBySprint(sprintId: Long): Flow<List<UserStoryEntity>>
 
-    @Query("SELECT * FROM user_stories WHERE sprintId IS NULL ORDER BY createdAt DESC")
-    fun getUnassigned(): Flow<List<UserStoryEntity>>
+    @Query("SELECT * FROM user_stories WHERE projectId = :projectId AND sprintId IS NULL ORDER BY createdAt DESC")
+    fun getUnassigned(projectId: Long): Flow<List<UserStoryEntity>>
 }

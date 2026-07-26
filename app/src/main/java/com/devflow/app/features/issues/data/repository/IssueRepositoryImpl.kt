@@ -41,8 +41,14 @@ class IssueRepositoryImpl @Inject constructor(
         return dao.getById(id)?.toDomain()
     }
 
+    override fun getAllIssues(projectId: Long): Flow<List<Issue>> {
+        return dao.getAll(projectId).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     override fun getAllIssues(): Flow<List<Issue>> {
-        return dao.getAll().map { entities ->
+        return dao.getAllIssues().map { entities ->
             entities.map { it.toDomain() }
         }
     }

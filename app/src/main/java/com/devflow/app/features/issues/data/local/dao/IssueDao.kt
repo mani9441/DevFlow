@@ -24,6 +24,9 @@ interface IssueDao {
     @Query("SELECT * FROM issues WHERE id = :id")
     suspend fun getById(id: Long): IssueEntity?
 
+    @Query("SELECT * FROM issues WHERE projectId = :projectId ORDER BY createdAt DESC")
+    fun getAll(projectId: Long): Flow<List<IssueEntity>>
+
     @Query("SELECT * FROM issues ORDER BY createdAt DESC")
-    fun getAll(): Flow<List<IssueEntity>>
+    fun getAllIssues(): Flow<List<IssueEntity>>
 }

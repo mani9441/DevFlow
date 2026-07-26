@@ -8,6 +8,7 @@ import com.devflow.app.features.tasks.domain.model.TaskStatus
 fun TaskEntity.toDomain(): Task {
     return Task(
         id = id,
+        projectId = projectId,
         title = title,
         description = description,
         priority = TaskPriority.valueOf(priority),
@@ -22,6 +23,7 @@ fun TaskEntity.toDomain(): Task {
 fun Task.toEntity(): TaskEntity {
     return TaskEntity(
         id = id,
+        projectId = projectId,
         title = title,
         description = description,
         priority = priority.name,

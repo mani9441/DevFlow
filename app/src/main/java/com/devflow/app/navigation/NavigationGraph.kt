@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.NavHostController
 import com.devflow.app.features.dashboard.presentation.screen.DashboardScreen
+import com.devflow.app.features.dashboard.presentation.screen.WorkspaceDashboardScreen
 import com.devflow.app.features.notes.navigation.NotesDestination
 import com.devflow.app.features.notes.presentation.screen.AddEditNoteScreen
 import com.devflow.app.features.notes.presentation.screen.NoteDetailsScreen
@@ -47,6 +48,9 @@ import com.devflow.app.features.monitoring.navigation.MonitoringDestination
 import com.devflow.app.features.monitoring.presentation.screen.BuildDetailsScreen
 import com.devflow.app.features.monitoring.presentation.screen.MonitoringDashboardScreen
 import com.devflow.app.features.monitoring.presentation.viewmodel.DevelopmentMonitoringViewModel
+import com.devflow.app.features.project.navigation.ProjectDestination
+import com.devflow.app.features.project.presentation.screen.ProjectListScreen
+import com.devflow.app.features.project.presentation.screen.AddEditProjectScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
@@ -55,8 +59,34 @@ fun NavigationGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.Dashboard.route
+        startDestination = NavRoutes.WorkspaceDashboard.route
     ) {
+        composable(NavRoutes.WorkspaceDashboard.route) {
+            WorkspaceDashboardScreen(
+                onNavigateToTodos = {
+                    navController.navigate(TodoDestination.LIST)
+                },
+                onNavigateToProjects = {
+                    navController.navigate(NavRoutes.Projects.route)
+                },
+                onNavigateToProjectDashboard = {
+                    navController.navigate(NavRoutes.Dashboard.route)
+                },
+                onAddProjectClick = {
+                    navController.navigate(ProjectDestination.ADD)
+                },
+                onAddTodoClick = {
+                    navController.navigate(TodoDestination.ADD)
+                },
+                onAddMeetingClick = {
+                    navController.navigate(MeetingsDestination.ADD)
+                },
+                onAddNoteClick = {
+                    navController.navigate(NotesDestination.ADD)
+                }
+            )
+        }
+
         composable(NavRoutes.Dashboard.route) {
             DashboardScreen(
                 onNavigateToTodos = {
@@ -89,8 +119,8 @@ fun NavigationGraph(
                 onNavigateToMonitoring = {
                     navController.navigate(MonitoringDestination.DASHBOARD)
                 },
-                onAddTodoClick = {
-                    navController.navigate(TodoDestination.ADD)
+                onAddTaskClick = {
+                    navController.navigate(TasksDestination.ADD)
                 },
                 onAddNoteClick = {
                     navController.navigate(NotesDestination.ADD)
@@ -100,6 +130,9 @@ fun NavigationGraph(
                 },
                 onAddIssueClick = {
                     navController.navigate(IssuesDestination.ADD)
+                },
+                onSwitchProject = {
+                    navController.navigate(NavRoutes.Projects.route)
                 }
             )
         }
@@ -601,6 +634,48 @@ fun NavigationGraph(
                     navController.popBackStack()
                 },
                 viewModel = sharedViewModel
+            )
+        }
+
+        composable(NavRoutes.Projects.route) {
+            ProjectListScreen(
+                onAddProject = {
+                    navController.navigate(ProjectDestination.ADD)
+                },
+                onEditProject = { projectId ->
+                    navController.navigate(ProjectDestination.edit(projectId))
+                },
+                onProjectSelected = {
+                    navController.navigate(NavRoutes.Dashboard.route) {
+                        popUpTo(NavRoutes.Projects.route) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+
+        composable(ProjectDestination.ADD) {
+            AddEditProjectScreen(
+                projectId = null,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = ProjectDestination.EDIT,
+            arguments = listOf(
+                navArgument("projectId") {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val projectId = backStackEntry.arguments?.getLong("projectId")
+            AddEditProjectScreen(
+                projectId = projectId,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

@@ -41,8 +41,14 @@ class TaskRepositoryImpl @Inject constructor(
         return dao.getById(id)?.toDomain()
     }
 
+    override fun getAllTasks(projectId: Long): Flow<List<Task>> {
+        return dao.getAll(projectId).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     override fun getAllTasks(): Flow<List<Task>> {
-        return dao.getAll().map { entities ->
+        return dao.getAllTasks().map { entities ->
             entities.map { it.toDomain() }
         }
     }
@@ -53,8 +59,8 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getUnassignedTasks(): Flow<List<Task>> {
-        return dao.getUnassigned().map { entities ->
+    override fun getUnassignedTasks(projectId: Long): Flow<List<Task>> {
+        return dao.getUnassigned(projectId).map { entities ->
             entities.map { it.toDomain() }
         }
     }

@@ -15,6 +15,7 @@ class MonitoringUnitTest {
         val now = LocalDateTime.now()
         val entity = RepositoryConfigEntity(
             id = 5L,
+            projectId = 1L,
             owner = "openai",
             repository = "openai-python",
             personalAccessToken = "ghp_mock_token_12345",
@@ -25,6 +26,7 @@ class MonitoringUnitTest {
         val domain = entity.toDomain()
 
         assertEquals(5L, domain.id)
+        assertEquals(1L, domain.projectId)
         assertEquals("openai", domain.owner)
         assertEquals("openai-python", domain.repository)
         assertEquals("ghp_mock_token_12345", domain.personalAccessToken)
@@ -41,6 +43,7 @@ class MonitoringUnitTest {
         val now = LocalDateTime.now()
         val entity = RepositoryConfigEntity(
             id = 12L,
+            projectId = 1L,
             owner = "tensorflow",
             repository = "tensorflow",
             personalAccessToken = null,
@@ -51,6 +54,7 @@ class MonitoringUnitTest {
         val domain = entity.toDomain()
 
         assertEquals(12L, domain.id)
+        assertEquals(1L, domain.projectId)
         assertEquals("tensorflow", domain.owner)
         assertEquals("tensorflow", domain.repository)
         assertEquals(null, domain.personalAccessToken)

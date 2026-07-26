@@ -8,6 +8,7 @@ import com.devflow.app.features.issues.domain.model.IssueStatus
 fun IssueEntity.toDomain(): Issue {
     return Issue(
         id = id,
+        projectId = projectId,
         title = title,
         description = description,
         priority = IssuePriority.valueOf(priority),
@@ -20,6 +21,7 @@ fun IssueEntity.toDomain(): Issue {
 fun Issue.toEntity(): IssueEntity {
     return IssueEntity(
         id = id,
+        projectId = projectId,
         title = title,
         description = description,
         priority = priority.name,

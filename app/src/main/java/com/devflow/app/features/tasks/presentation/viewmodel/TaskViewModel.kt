@@ -8,11 +8,13 @@ import com.devflow.app.features.tasks.domain.model.TaskStatus
 import com.devflow.app.features.tasks.domain.repository.TaskRepository
 import com.devflow.app.features.tasks.presentation.state.TaskUiState
 import com.devflow.app.features.sprint.domain.repository.SprintRepository
+import com.devflow.app.features.project.domain.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskViewModel @Inject constructor(
     private val repository: TaskRepository,
-    private val sprintRepository: SprintRepository
+    private val sprintRepository: SprintRepository,
+    private val projectRepository: ProjectRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TaskUiState())
@@ -36,14 +39,27 @@ class TaskViewModel @Inject constructor(
         _uiState.update { it.copy(loadingState = true) }
         viewModelScope.launch {
             try {
-                launch {
-                    repository.getAllTasks().collect { tasks ->
-                        _uiState.update { it.copy(taskList = tasks, loadingState = false, errorMessage = null) }
-                    }
-                }
-                launch {
-                    repository.getUnassignedTasks().collect { tasks ->
-                        _uiState.update { it.copy(unassignedTasks = tasks) }
+                projectRepository.getActiveProject().collect { project ->
+                    if (project != null) {
+                        launch {
+                            repository.getAllTasks(project.id).collect { tasks ->
+                                _uiState.update { it.copy(taskList = tasks, loadingState = false, errorMessage = null) }
+                            }
+                        }
+                        launch {
+                            repository.getUnassignedTasks(project.id).collect { tasks ->
+                                _uiState.update { it.copy(unassignedTasks = tasks) }
+                            }
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                taskList = emptyList(),
+                                unassignedTasks = emptyList(),
+                                loadingState = false,
+                                errorMessage = "No active project selected"
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -74,8 +90,14 @@ class TaskViewModel @Inject constructor(
     private fun loadAvailableSprints() {
         viewModelScope.launch {
             try {
-                sprintRepository.getAllSprints().collect { sprints ->
-                    _uiState.update { it.copy(availableSprints = sprints) }
+                projectRepository.getActiveProject().collect { project ->
+                    if (project != null) {
+                        sprintRepository.getAllSprints(project.id).collect { sprints ->
+                            _uiState.update { it.copy(availableSprints = sprints) }
+                        }
+                    } else {
+                        _uiState.update { it.copy(availableSprints = emptyList()) }
+                    }
                 }
             } catch (e: Exception) {
                 // Ignore or handle
@@ -93,18 +115,24 @@ class TaskViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val newTask = Task(
-                    title = title.trim(),
-                    description = description?.trim(),
-                    priority = priority,
-                    status = TaskStatus.PENDING,
-                    dueDate = dueDate,
-                    sprintId = sprintId,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now()
-                )
-                repository.createTask(newTask)
-                onSuccess()
+                val project = projectRepository.getActiveProject().first()
+                if (project != null) {
+                    val newTask = Task(
+                        projectId = project.id,
+                        title = title.trim(),
+                        description = description?.trim(),
+                        priority = priority,
+                        status = TaskStatus.PENDING,
+                        dueDate = dueDate,
+                        sprintId = sprintId,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now()
+                    )
+                    repository.createTask(newTask)
+                    onSuccess()
+                } else {
+                    _uiState.update { it.copy(errorMessage = "No active project selected") }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = e.message ?: "Failed to add task") }
             }

@@ -41,8 +41,8 @@ class UserStoryRepositoryImpl @Inject constructor(
         return dao.getById(id)?.toDomain()
     }
 
-    override fun getAllStories(): Flow<List<UserStory>> {
-        return dao.getAll().map { entities ->
+    override fun getAllStories(projectId: Long): Flow<List<UserStory>> {
+        return dao.getAll(projectId).map { entities ->
             entities.map { it.toDomain() }
         }
     }
@@ -53,8 +53,8 @@ class UserStoryRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getUnassignedStories(): Flow<List<UserStory>> {
-        return dao.getUnassigned().map { entities ->
+    override fun getUnassignedStories(projectId: Long): Flow<List<UserStory>> {
+        return dao.getUnassigned(projectId).map { entities ->
             entities.map { it.toDomain() }
         }
     }

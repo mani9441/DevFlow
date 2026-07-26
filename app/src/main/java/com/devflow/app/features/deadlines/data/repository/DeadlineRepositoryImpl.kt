@@ -41,8 +41,14 @@ class DeadlineRepositoryImpl @Inject constructor(
         return dao.getById(id)?.toDomain()
     }
 
+    override fun getAllDeadlines(projectId: Long): Flow<List<Deadline>> {
+        return dao.getAll(projectId).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     override fun getAllDeadlines(): Flow<List<Deadline>> {
-        return dao.getAll().map { entities ->
+        return dao.getAllDeadlines().map { entities ->
             entities.map { it.toDomain() }
         }
     }

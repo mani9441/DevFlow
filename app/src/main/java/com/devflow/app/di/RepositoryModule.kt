@@ -24,6 +24,8 @@ import com.devflow.app.features.issues.data.repository.IssueRepositoryImpl
 import com.devflow.app.features.issues.domain.repository.IssueRepository
 import com.devflow.app.features.monitoring.data.repository.DevelopmentMonitoringRepositoryImpl
 import com.devflow.app.features.monitoring.domain.repository.DevelopmentMonitoringRepository
+import com.devflow.app.features.project.data.repository.ProjectRepositoryImpl
+import com.devflow.app.features.project.domain.repository.ProjectRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -105,4 +107,10 @@ abstract class RepositoryModule {
     abstract fun bindDevelopmentMonitoringRepository(
         repository: DevelopmentMonitoringRepositoryImpl
     ): DevelopmentMonitoringRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProjectRepository(
+        repository: ProjectRepositoryImpl
+    ): ProjectRepository
 }

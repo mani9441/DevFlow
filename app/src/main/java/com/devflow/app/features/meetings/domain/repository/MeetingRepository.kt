@@ -13,5 +13,7 @@ interface MeetingRepository {
 
     suspend fun getMeeting(id: Long): Meeting?
 
-    fun getAllMeetings(): Flow<List<Meeting>>
+    fun getAllMeetings(projectId: Long): Flow<List<Meeting>>
+
+    fun getAllMeetings(): Flow<List<Meeting>> = kotlinx.coroutines.flow.flowOf(emptyList())
 }

@@ -31,9 +31,15 @@ class DevelopmentMonitoringRepositoryImpl @Inject constructor(
         dao.insert(toSave.toEntity())
     }
 
-    override fun getRepository(): Flow<RepositoryConfig?> {
-        return dao.getConfig().map { entity ->
+    override fun getRepository(projectId: Long): Flow<RepositoryConfig?> {
+        return dao.getConfig(projectId).map { entity ->
             entity?.toDomain()
+        }
+    }
+
+    override fun getAllRepositoryConfigs(): Flow<List<RepositoryConfig>> {
+        return dao.getAllConfigs().map { entities ->
+            entities.map { it.toDomain() }
         }
     }
 

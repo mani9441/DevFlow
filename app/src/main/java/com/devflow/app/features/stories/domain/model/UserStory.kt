@@ -14,6 +14,7 @@ enum class StoryPriority {
  */
 data class UserStory(
     val id: Long = 0L,
+    val projectId: Long,
     val title: String,
     val description: String? = null,
     val acceptanceCriteria: String? = null,

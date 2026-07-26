@@ -22,6 +22,7 @@ class CollaborationUnitTest {
     fun teamMemberMapping_isCorrect() {
         val entity = TeamMemberEntity(
             id = 2L,
+            projectId = 1L,
             name = "John",
             role = "Backend Developer"
         )
@@ -29,6 +30,7 @@ class CollaborationUnitTest {
         val domain = entity.toDomain()
 
         assertEquals(2L, domain.id)
+        assertEquals(1L, domain.projectId)
         assertEquals("John", domain.name)
         assertEquals("Backend Developer", domain.role)
 
@@ -66,6 +68,7 @@ class CollaborationUnitTest {
         val now = LocalDateTime.now()
         val entity = IssueEntity(
             id = 101L,
+            projectId = 1L,
             title = "App crash on login",
             description = "Clicking the login button throws a NullPointerException",
             priority = "CRITICAL",
@@ -77,6 +80,7 @@ class CollaborationUnitTest {
         val domain = entity.toDomain()
 
         assertEquals(101L, domain.id)
+        assertEquals(1L, domain.projectId)
         assertEquals("App crash on login", domain.title)
         assertEquals("Clicking the login button throws a NullPointerException", domain.description)
         assertEquals(IssuePriority.CRITICAL, domain.priority)

@@ -43,8 +43,14 @@ class NoteRepositoryImpl @Inject constructor(
         return dao.getById(id)?.toDomain()
     }
 
+    override fun getAllNotes(projectId: Long): Flow<List<Note>> {
+        return dao.getAll(projectId).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     override fun getAllNotes(): Flow<List<Note>> {
-        return dao.getAll().map { entities ->
+        return dao.getAllNotes().map { entities ->
             entities.map { it.toDomain() }
         }
     }

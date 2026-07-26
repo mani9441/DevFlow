@@ -8,6 +8,7 @@ import java.time.LocalDateTime
  */
 data class Meeting(
     val id: Long = 0L,
+    val projectId: Long,
     val title: String,
     val meetingDate: LocalDate,
     val meetingTime: String,

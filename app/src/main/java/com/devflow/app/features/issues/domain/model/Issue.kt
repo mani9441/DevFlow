@@ -21,6 +21,7 @@ enum class IssuePriority {
  */
 data class Issue(
     val id: Long = 0L,
+    val projectId: Long,
     val title: String,
     val description: String? = null,
     val priority: IssuePriority = IssuePriority.MEDIUM,

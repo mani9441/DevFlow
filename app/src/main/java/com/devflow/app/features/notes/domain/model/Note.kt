@@ -7,6 +7,7 @@ import java.time.LocalDateTime
  */
 data class Note(
     val id: Long = 0L,
+    val projectId: Long,
     val title: String,
     val content: String,
     val createdAt: LocalDateTime,

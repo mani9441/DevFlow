@@ -3,15 +3,16 @@ package com.devflow.app.features.dashboard.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devflow.app.features.dashboard.presentation.state.DashboardUiState
-import com.devflow.app.features.deadlines.domain.repository.DeadlineRepository
+import com.devflow.app.features.project.domain.repository.ProjectRepository
+import com.devflow.app.features.sprint.domain.repository.SprintRepository
+import com.devflow.app.features.meetings.domain.repository.MeetingRepository
+import com.devflow.app.features.notes.domain.repository.NoteRepository
 import com.devflow.app.features.issues.domain.model.IssueStatus
 import com.devflow.app.features.issues.domain.repository.IssueRepository
-import com.devflow.app.features.meetings.domain.repository.MeetingRepository
 import com.devflow.app.features.monitoring.domain.model.RepositoryConfig
 import com.devflow.app.features.monitoring.domain.repository.DevelopmentMonitoringRepository
-import com.devflow.app.features.todo.domain.model.TodoStatus
-import com.devflow.app.features.todo.domain.repository.TodoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,9 +23,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val todoRepository: TodoRepository,
+    private val projectRepository: ProjectRepository,
+    private val sprintRepository: SprintRepository,
     private val meetingRepository: MeetingRepository,
-    private val deadlineRepository: DeadlineRepository,
+    private val noteRepository: NoteRepository,
     private val issueRepository: IssueRepository,
     private val monitoringRepository: DevelopmentMonitoringRepository
 ) : ViewModel() {
@@ -32,48 +34,82 @@ class DashboardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
+    private var activeProjectJob: Job? = null
+
     init {
-        loadDashboard()
+        observeActiveProject()
     }
 
-    fun loadDashboard() {
+    private fun observeActiveProject() {
+        activeProjectJob?.cancel()
+        activeProjectJob = viewModelScope.launch {
+            projectRepository.getActiveProject().collect { project ->
+                _uiState.update { it.copy(activeProject = project) }
+                if (project != null) {
+                    loadDashboardData(project.id)
+                } else {
+                    _uiState.update {
+                        DashboardUiState(activeProject = null)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadDashboardData(projectId: Long) {
         _uiState.update { it.copy(loading = true) }
         viewModelScope.launch {
-            // Launch parallel collection of repositories
+            // Sprints
             launch {
-                todoRepository.getAllTodos().collect { todos ->
-                    val pending = todos.filter { it.status == TodoStatus.PENDING }.take(3)
-                    _uiState.update { it.copy(todos = pending) }
+                sprintRepository.getAllSprints(projectId).collect { sprints ->
+                    val today = LocalDate.now()
+                    val current = sprints.find {
+                        (it.startDate.isBefore(today) || it.startDate.isEqual(today)) &&
+                        (it.endDate.isAfter(today) || it.endDate.isEqual(today))
+                    } ?: sprints.firstOrNull()
+
+                    _uiState.update {
+                        it.copy(
+                            currentSprint = current,
+                            sprintsCount = sprints.size
+                        )
+                    }
                 }
             }
 
+            // Meetings
             launch {
-                meetingRepository.getAllMeetings().collect { meetings ->
+                meetingRepository.getAllMeetings(projectId).collect { meetings ->
                     val today = LocalDate.now()
                     val todayMeetings = meetings.filter { it.meetingDate == today }
                     _uiState.update { it.copy(meetings = todayMeetings) }
                 }
             }
 
+            // Notes
             launch {
-                deadlineRepository.getAllDeadlines().collect { deadlines ->
-                    val today = LocalDate.now()
-                    val upcoming = deadlines
-                        .filter { !it.isCompleted && (it.dueDate.isAfter(today) || it.dueDate.isEqual(today)) }
-                        .sortedBy { it.dueDate }
-                    _uiState.update { it.copy(deadlines = upcoming) }
+                noteRepository.getAllNotes(projectId).collect { notes ->
+                    val recent = notes.take(3)
+                    _uiState.update {
+                        it.copy(
+                            recentNotes = recent,
+                            notesCount = notes.size
+                        )
+                    }
                 }
             }
 
+            // Issues
             launch {
-                issueRepository.getAllIssues().collect { issues ->
+                issueRepository.getAllIssues(projectId).collect { issues ->
                     val openIssues = issues.filter { it.status == IssueStatus.OPEN || it.status == IssueStatus.IN_PROGRESS }
                     _uiState.update { it.copy(issues = openIssues) }
                 }
             }
 
+            // Repo config & Build Status
             launch {
-                monitoringRepository.getRepository().collect { config ->
+                monitoringRepository.getRepository(projectId).collect { config ->
                     _uiState.update { it.copy(repoConfig = config, loading = false) }
                     if (config != null) {
                         fetchLatestBuild(config)
@@ -86,7 +122,10 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun refreshDashboard() {
-        loadDashboard()
+        val active = _uiState.value.activeProject
+        if (active != null) {
+            loadDashboardData(active.id)
+        }
     }
 
     private fun fetchLatestBuild(config: RepositoryConfig) {

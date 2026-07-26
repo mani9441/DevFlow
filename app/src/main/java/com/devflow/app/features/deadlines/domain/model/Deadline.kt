@@ -8,6 +8,7 @@ import java.time.LocalDateTime
  */
 data class Deadline(
     val id: Long = 0L,
+    val projectId: Long,
     val title: String,
     val description: String? = null,
     val dueDate: LocalDate,

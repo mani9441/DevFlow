@@ -5,6 +5,7 @@ package com.devflow.app.features.communication.domain.model
  */
 data class TeamMember(
     val id: Long = 0L,
+    val projectId: Long,
     val name: String,
     val role: String
 )

@@ -24,6 +24,9 @@ interface DeadlineDao {
     @Query("SELECT * FROM deadlines WHERE id = :id")
     suspend fun getById(id: Long): DeadlineEntity?
 
+    @Query("SELECT * FROM deadlines WHERE projectId = :projectId ORDER BY dueDate ASC")
+    fun getAll(projectId: Long): Flow<List<DeadlineEntity>>
+
     @Query("SELECT * FROM deadlines ORDER BY dueDate ASC")
-    fun getAll(): Flow<List<DeadlineEntity>>
+    fun getAllDeadlines(): Flow<List<DeadlineEntity>>
 }

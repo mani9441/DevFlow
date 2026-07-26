@@ -24,12 +24,15 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id = :id")
     suspend fun getById(id: Long): TaskEntity?
 
+    @Query("SELECT * FROM tasks WHERE projectId = :projectId ORDER BY createdAt DESC")
+    fun getAll(projectId: Long): Flow<List<TaskEntity>>
+
     @Query("SELECT * FROM tasks ORDER BY createdAt DESC")
-    fun getAll(): Flow<List<TaskEntity>>
+    fun getAllTasks(): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM tasks WHERE sprintId = :sprintId ORDER BY createdAt DESC")
     fun getBySprint(sprintId: Long): Flow<List<TaskEntity>>
 
-    @Query("SELECT * FROM tasks WHERE sprintId IS NULL ORDER BY createdAt DESC")
-    fun getUnassigned(): Flow<List<TaskEntity>>
+    @Query("SELECT * FROM tasks WHERE projectId = :projectId AND sprintId IS NULL ORDER BY createdAt DESC")
+    fun getUnassigned(projectId: Long): Flow<List<TaskEntity>>
 }

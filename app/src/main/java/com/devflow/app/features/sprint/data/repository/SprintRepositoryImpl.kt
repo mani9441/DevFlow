@@ -45,8 +45,14 @@ class SprintRepositoryImpl @Inject constructor(
         return dao.getById(id)?.toDomain()
     }
 
+    override fun getAllSprints(projectId: Long): Flow<List<Sprint>> {
+        return dao.getAll(projectId).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     override fun getAllSprints(): Flow<List<Sprint>> {
-        return dao.getAll().map { entities ->
+        return dao.getAllSprints().map { entities ->
             entities.map { it.toDomain() }
         }
     }

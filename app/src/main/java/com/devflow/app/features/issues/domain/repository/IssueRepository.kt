@@ -13,5 +13,7 @@ interface IssueRepository {
 
     suspend fun getIssue(id: Long): Issue?
 
-    fun getAllIssues(): Flow<List<Issue>>
+    fun getAllIssues(projectId: Long): Flow<List<Issue>>
+
+    fun getAllIssues(): Flow<List<Issue>> = kotlinx.coroutines.flow.flowOf(emptyList())
 }

@@ -8,6 +8,7 @@ import com.devflow.app.features.communication.domain.model.TeamMember
 fun TeamMemberEntity.toDomain(): TeamMember {
     return TeamMember(
         id = id,
+        projectId = projectId,
         name = name,
         role = role
     )
@@ -16,6 +17,7 @@ fun TeamMemberEntity.toDomain(): TeamMember {
 fun TeamMember.toEntity(): TeamMemberEntity {
     return TeamMemberEntity(
         id = id,
+        projectId = projectId,
         name = name,
         role = role
     )

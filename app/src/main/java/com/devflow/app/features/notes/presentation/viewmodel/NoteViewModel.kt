@@ -5,18 +5,21 @@ import androidx.lifecycle.viewModelScope
 import com.devflow.app.features.notes.domain.model.Note
 import com.devflow.app.features.notes.domain.repository.NoteRepository
 import com.devflow.app.features.notes.presentation.state.NoteUiState
+import com.devflow.app.features.project.domain.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class NoteViewModel @Inject constructor(
-    private val repository: NoteRepository
+    private val repository: NoteRepository,
+    private val projectRepository: ProjectRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NoteUiState())
@@ -30,13 +33,25 @@ class NoteViewModel @Inject constructor(
         _uiState.update { it.copy(loadingState = true) }
         viewModelScope.launch {
             try {
-                repository.getAllNotes().collect { notes ->
-                    _uiState.update {
-                        it.copy(
-                            noteList = notes,
-                            loadingState = false,
-                            errorMessage = null
-                        )
+                projectRepository.getActiveProject().collect { project ->
+                    if (project != null) {
+                        repository.getAllNotes(project.id).collect { notes ->
+                            _uiState.update {
+                                it.copy(
+                                    noteList = notes,
+                                    loadingState = false,
+                                    errorMessage = null
+                                )
+                            }
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                noteList = emptyList(),
+                                loadingState = false,
+                                errorMessage = "No active project selected"
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -77,14 +92,20 @@ class NoteViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val newNote = Note(
-                    title = title.trim(),
-                    content = content.trim(),
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now()
-                )
-                repository.createNote(newNote)
-                onSuccess()
+                val project = projectRepository.getActiveProject().first()
+                if (project != null) {
+                    val newNote = Note(
+                        projectId = project.id,
+                        title = title.trim(),
+                        content = content.trim(),
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now()
+                    )
+                    repository.createNote(newNote)
+                    onSuccess()
+                } else {
+                    _uiState.update { it.copy(errorMessage = "No active project selected") }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = e.message ?: "Failed to add note") }
             }

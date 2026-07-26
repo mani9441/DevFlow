@@ -6,6 +6,7 @@ import com.devflow.app.features.sprint.domain.model.Sprint
 fun SprintEntity.toDomain(): Sprint {
     return Sprint(
         id = id,
+        projectId = projectId,
         name = name,
         goal = goal,
         startDate = startDate,
@@ -18,6 +19,7 @@ fun SprintEntity.toDomain(): Sprint {
 fun Sprint.toEntity(): SprintEntity {
     return SprintEntity(
         id = id,
+        projectId = projectId,
         name = name,
         goal = goal,
         startDate = startDate,

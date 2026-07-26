@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.devflow.app.features.deadlines.domain.model.Deadline
 import com.devflow.app.features.deadlines.domain.repository.DeadlineRepository
 import com.devflow.app.features.deadlines.presentation.state.DeadlineUiState
+import com.devflow.app.features.project.domain.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -17,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DeadlineViewModel @Inject constructor(
-    private val repository: DeadlineRepository
+    private val repository: DeadlineRepository,
+    private val projectRepository: ProjectRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DeadlineUiState())
@@ -31,13 +34,25 @@ class DeadlineViewModel @Inject constructor(
         _uiState.update { it.copy(loadingState = true) }
         viewModelScope.launch {
             try {
-                repository.getAllDeadlines().collect { deadlines ->
-                    _uiState.update {
-                        it.copy(
-                            deadlineList = deadlines,
-                            loadingState = false,
-                            errorMessage = null
-                        )
+                projectRepository.getActiveProject().collect { project ->
+                    if (project != null) {
+                        repository.getAllDeadlines(project.id).collect { deadlines ->
+                            _uiState.update {
+                                it.copy(
+                                    deadlineList = deadlines,
+                                    loadingState = false,
+                                    errorMessage = null
+                                )
+                            }
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                deadlineList = emptyList(),
+                                loadingState = false,
+                                errorMessage = "No active project selected"
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -79,16 +94,22 @@ class DeadlineViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val newDeadline = Deadline(
-                    title = title.trim(),
-                    description = description?.trim(),
-                    dueDate = dueDate,
-                    isCompleted = false,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now()
-                )
-                repository.createDeadline(newDeadline)
-                onSuccess()
+                val project = projectRepository.getActiveProject().first()
+                if (project != null) {
+                    val newDeadline = Deadline(
+                        projectId = project.id,
+                        title = title.trim(),
+                        description = description?.trim(),
+                        dueDate = dueDate,
+                        isCompleted = false,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now()
+                    )
+                    repository.createDeadline(newDeadline)
+                    onSuccess()
+                } else {
+                    _uiState.update { it.copy(errorMessage = "No active project selected") }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = e.message ?: "Failed to add deadline") }
             }

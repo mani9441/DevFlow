@@ -13,9 +13,9 @@ interface UserStoryRepository {
 
     suspend fun getStory(id: Long): UserStory?
 
-    fun getAllStories(): Flow<List<UserStory>>
+    fun getAllStories(projectId: Long): Flow<List<UserStory>>
 
     fun getStoriesBySprint(sprintId: Long): Flow<List<UserStory>>
 
-    fun getUnassignedStories(): Flow<List<UserStory>>
+    fun getUnassignedStories(projectId: Long): Flow<List<UserStory>>
 }

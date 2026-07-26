@@ -12,8 +12,8 @@ class TeamMemberRepositoryImpl @Inject constructor(
     private val dao: TeamMemberDao
 ) : TeamMemberRepository {
 
-    override fun getAllMembers(): Flow<List<TeamMember>> {
-        return dao.getAll().map { entities ->
+    override fun getAllMembers(projectId: Long): Flow<List<TeamMember>> {
+        return dao.getAll(projectId).map { entities ->
             entities.map { it.toDomain() }
         }
     }

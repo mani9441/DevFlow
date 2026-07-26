@@ -8,6 +8,7 @@ import java.time.LocalDateTime
  */
 data class Sprint(
     val id: Long = 0L,
+    val projectId: Long,
     val name: String,
     val goal: String,
     val startDate: LocalDate,

@@ -7,18 +7,21 @@ import com.devflow.app.features.issues.domain.model.IssuePriority
 import com.devflow.app.features.issues.domain.model.IssueStatus
 import com.devflow.app.features.issues.domain.repository.IssueRepository
 import com.devflow.app.features.issues.presentation.state.IssueUiState
+import com.devflow.app.features.project.domain.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class IssueViewModel @Inject constructor(
-    private val repository: IssueRepository
+    private val repository: IssueRepository,
+    private val projectRepository: ProjectRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(IssueUiState())
@@ -32,13 +35,25 @@ class IssueViewModel @Inject constructor(
         _uiState.update { it.copy(loadingState = true) }
         viewModelScope.launch {
             try {
-                repository.getAllIssues().collect { issues ->
-                    _uiState.update {
-                        it.copy(
-                            issueList = issues,
-                            loadingState = false,
-                            errorMessage = null
-                        )
+                projectRepository.getActiveProject().collect { project ->
+                    if (project != null) {
+                        repository.getAllIssues(project.id).collect { issues ->
+                            _uiState.update {
+                                it.copy(
+                                    issueList = issues,
+                                    loadingState = false,
+                                    errorMessage = null
+                                )
+                            }
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                issueList = emptyList(),
+                                loadingState = false,
+                                errorMessage = "No active project selected"
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -78,16 +93,22 @@ class IssueViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val newIssue = Issue(
-                    title = title.trim(),
-                    description = description?.trim(),
-                    priority = priority,
-                    status = IssueStatus.OPEN,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now()
-                )
-                repository.createIssue(newIssue)
-                onSuccess()
+                val project = projectRepository.getActiveProject().first()
+                if (project != null) {
+                    val newIssue = Issue(
+                        projectId = project.id,
+                        title = title.trim(),
+                        description = description?.trim(),
+                        priority = priority,
+                        status = IssueStatus.OPEN,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now()
+                    )
+                    repository.createIssue(newIssue)
+                    onSuccess()
+                } else {
+                    _uiState.update { it.copy(errorMessage = "No active project selected") }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = e.message ?: "Failed to log issue") }
             }

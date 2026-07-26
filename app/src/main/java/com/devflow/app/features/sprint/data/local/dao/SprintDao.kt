@@ -24,6 +24,9 @@ interface SprintDao {
     @Query("SELECT * FROM sprints WHERE id = :id")
     suspend fun getById(id: Long): SprintEntity?
 
+    @Query("SELECT * FROM sprints WHERE projectId = :projectId ORDER BY startDate DESC")
+    fun getAll(projectId: Long): Flow<List<SprintEntity>>
+
     @Query("SELECT * FROM sprints ORDER BY startDate DESC")
-    fun getAll(): Flow<List<SprintEntity>>
+    fun getAllSprints(): Flow<List<SprintEntity>>
 }

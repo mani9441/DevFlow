@@ -13,5 +13,7 @@ interface NoteRepository {
 
     suspend fun getNote(id: Long): Note?
 
-    fun getAllNotes(): Flow<List<Note>>
+    fun getAllNotes(projectId: Long): Flow<List<Note>>
+
+    fun getAllNotes(): Flow<List<Note>> = kotlinx.coroutines.flow.flowOf(emptyList())
 }

@@ -13,5 +13,7 @@ interface SprintRepository {
 
     suspend fun getSprint(id: Long): Sprint?
 
-    fun getAllSprints(): Flow<List<Sprint>>
+    fun getAllSprints(projectId: Long): Flow<List<Sprint>>
+
+    fun getAllSprints(): Flow<List<Sprint>> = kotlinx.coroutines.flow.flowOf(emptyList())
 }

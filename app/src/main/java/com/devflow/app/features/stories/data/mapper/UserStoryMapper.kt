@@ -7,6 +7,7 @@ import com.devflow.app.features.stories.domain.model.UserStory
 fun UserStoryEntity.toDomain(): UserStory {
     return UserStory(
         id = id,
+        projectId = projectId,
         title = title,
         description = description,
         acceptanceCriteria = acceptanceCriteria,
@@ -20,6 +21,7 @@ fun UserStoryEntity.toDomain(): UserStory {
 fun UserStory.toEntity(): UserStoryEntity {
     return UserStoryEntity(
         id = id,
+        projectId = projectId,
         title = title,
         description = description,
         acceptanceCriteria = acceptanceCriteria,

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface TeamMemberRepository {
 
-    fun getAllMembers(): Flow<List<TeamMember>>
+    fun getAllMembers(projectId: Long): Flow<List<TeamMember>>
 
     suspend fun getMember(id: Long): TeamMember?
 }

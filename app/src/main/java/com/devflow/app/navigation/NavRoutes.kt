@@ -2,6 +2,10 @@ package com.devflow.app.navigation
 
 sealed class NavRoutes(val route: String) {
 
+    data object WorkspaceDashboard : NavRoutes("workspace_dashboard")
+
+    data object Projects : NavRoutes("project_list")
+
     data object Dashboard : NavRoutes("dashboard")
 
     data object Todo : NavRoutes("todo_list")

@@ -6,6 +6,7 @@ import com.devflow.app.features.communication.domain.model.Message
 import com.devflow.app.features.communication.domain.repository.MessageRepository
 import com.devflow.app.features.communication.domain.repository.TeamMemberRepository
 import com.devflow.app.features.communication.presentation.state.CommunicationUiState
+import com.devflow.app.features.project.domain.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,14 +19,16 @@ import javax.inject.Inject
 @HiltViewModel
 class CommunicationViewModel @Inject constructor(
     private val memberRepository: TeamMemberRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val projectRepository: ProjectRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CommunicationUiState())
     val uiState: StateFlow<CommunicationUiState> = _uiState.asStateFlow()
 
-    // Default current user is Marcus (id = 1L)
-    val currentUserId = 1L
+    // Resolved dynamically for the active project
+    var currentUserId = -1L
+        private set
 
     init {
         loadTeamMembers()
@@ -35,15 +38,29 @@ class CommunicationViewModel @Inject constructor(
         _uiState.update { it.copy(loadingState = true) }
         viewModelScope.launch {
             try {
-                memberRepository.getAllMembers().collect { members ->
-                    // Exclude current user (Marcus) from chat list
-                    val otherMembers = members.filter { it.id != currentUserId }
-                    _uiState.update {
-                        it.copy(
-                            membersList = otherMembers,
-                            loadingState = false,
-                            errorMessage = null
-                        )
+                projectRepository.getActiveProject().collect { project ->
+                    if (project != null) {
+                        memberRepository.getAllMembers(project.id).collect { members ->
+                            val marcus = members.find { it.name == "Marcus" }
+                            currentUserId = marcus?.id ?: -1L
+                            // Exclude current user (Marcus) from chat list
+                            val otherMembers = members.filter { it.id != currentUserId }
+                            _uiState.update {
+                                it.copy(
+                                    membersList = otherMembers,
+                                    loadingState = false,
+                                    errorMessage = null
+                                )
+                            }
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                membersList = emptyList(),
+                                loadingState = false,
+                                errorMessage = "No active project selected"
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -64,12 +81,22 @@ class CommunicationViewModel @Inject constructor(
                 val member = memberRepository.getMember(receiverId)
                 _uiState.update { it.copy(selectedMember = member) }
 
-                messageRepository.getConversation(currentUserId, receiverId).collect { messages ->
+                if (currentUserId != -1L) {
+                    messageRepository.getConversation(currentUserId, receiverId).collect { messages ->
+                        _uiState.update {
+                            it.copy(
+                                conversationMessages = messages,
+                                loadingState = false,
+                                errorMessage = null
+                            )
+                        }
+                    }
+                } else {
                     _uiState.update {
                         it.copy(
-                            conversationMessages = messages,
+                            conversationMessages = emptyList(),
                             loadingState = false,
-                            errorMessage = null
+                            errorMessage = "Current user not registered in this project team"
                         )
                     }
                 }
@@ -87,6 +114,7 @@ class CommunicationViewModel @Inject constructor(
     fun sendMessage(messageText: String, onSuccess: () -> Unit = {}) {
         val receiver = _uiState.value.selectedMember ?: return
         if (messageText.isBlank()) return
+        if (currentUserId == -1L) return
 
         viewModelScope.launch {
             try {

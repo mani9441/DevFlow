@@ -21,6 +21,7 @@ enum class TaskPriority {
  */
 data class Task(
     val id: Long = 0L,
+    val projectId: Long,
     val title: String,
     val description: String? = null,
     val priority: TaskPriority = TaskPriority.MEDIUM,

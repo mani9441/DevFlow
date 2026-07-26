@@ -45,8 +45,14 @@ class MeetingRepositoryImpl @Inject constructor(
         return dao.getById(id)?.toDomain()
     }
 
+    override fun getAllMeetings(projectId: Long): Flow<List<Meeting>> {
+        return dao.getAll(projectId).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     override fun getAllMeetings(): Flow<List<Meeting>> {
-        return dao.getAll().map { entities ->
+        return dao.getAllMeetings().map { entities ->
             entities.map { it.toDomain() }
         }
     }

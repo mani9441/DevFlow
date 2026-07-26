@@ -8,7 +8,9 @@ interface DevelopmentMonitoringRepository {
 
     suspend fun saveRepository(config: RepositoryConfig): Long
 
-    fun getRepository(): Flow<RepositoryConfig?>
+    fun getRepository(projectId: Long): Flow<RepositoryConfig?>
+
+    fun getAllRepositoryConfigs(): Flow<List<RepositoryConfig>> = kotlinx.coroutines.flow.flowOf(emptyList())
 
     suspend fun deleteRepository(config: RepositoryConfig)
 

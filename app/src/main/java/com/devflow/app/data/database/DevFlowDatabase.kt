@@ -26,9 +26,12 @@ import com.devflow.app.features.monitoring.data.local.entity.RepositoryConfigEnt
 import com.devflow.app.features.todo.data.local.converter.TodoConverters
 import com.devflow.app.features.todo.data.local.dao.TodoDao
 import com.devflow.app.features.todo.data.local.entity.TodoEntity
+import com.devflow.app.features.project.data.local.dao.ProjectDao
+import com.devflow.app.features.project.data.local.entity.ProjectEntity
 
 @Database(
     entities = [
+        ProjectEntity::class,
         TodoEntity::class,
         NoteEntity::class,
         MeetingEntity::class,
@@ -41,11 +44,13 @@ import com.devflow.app.features.todo.data.local.entity.TodoEntity
         IssueEntity::class,
         RepositoryConfigEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(TodoConverters::class)
 abstract class DevFlowDatabase : RoomDatabase() {
+
+    abstract fun projectDao(): ProjectDao
 
     abstract fun todoDao(): TodoDao
 

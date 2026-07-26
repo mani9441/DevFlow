@@ -12,8 +12,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RepositoryConfigDao {
 
-    @Query("SELECT * FROM repository_configs LIMIT 1")
-    fun getConfig(): Flow<RepositoryConfigEntity?>
+    @Query("SELECT * FROM repository_configs WHERE projectId = :projectId LIMIT 1")
+    fun getConfig(projectId: Long): Flow<RepositoryConfigEntity?>
+
+    @Query("SELECT * FROM repository_configs")
+    fun getAllConfigs(): Flow<List<RepositoryConfigEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(config: RepositoryConfigEntity): Long

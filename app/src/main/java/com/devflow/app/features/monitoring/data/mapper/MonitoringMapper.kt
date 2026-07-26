@@ -6,6 +6,7 @@ import com.devflow.app.features.monitoring.domain.model.RepositoryConfig
 fun RepositoryConfigEntity.toDomain(): RepositoryConfig {
     return RepositoryConfig(
         id = id,
+        projectId = projectId,
         owner = owner,
         repository = repository,
         personalAccessToken = personalAccessToken,
@@ -17,6 +18,7 @@ fun RepositoryConfigEntity.toDomain(): RepositoryConfig {
 fun RepositoryConfig.toEntity(): RepositoryConfigEntity {
     return RepositoryConfigEntity(
         id = id,
+        projectId = projectId,
         owner = owner,
         repository = repository,
         personalAccessToken = personalAccessToken,

@@ -6,6 +6,7 @@ import com.devflow.app.features.notes.domain.model.Note
 fun NoteEntity.toDomain(): Note {
     return Note(
         id = id,
+        projectId = projectId,
         title = title,
         content = content,
         createdAt = createdAt,
@@ -16,6 +17,7 @@ fun NoteEntity.toDomain(): Note {
 fun Note.toEntity(): NoteEntity {
     return NoteEntity(
         id = id,
+        projectId = projectId,
         title = title,
         content = content,
         createdAt = createdAt,
